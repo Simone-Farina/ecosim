@@ -1,0 +1,34 @@
+# --- IntelliJ IDEA ---
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# --- Scala & sbt (Build Tool) ---
+target/
+project/target/
+project/project/target/
+lib_managed/
+src_managed/
+project/boot/
+project/plugins/project/
+.history/
+.cache/
+.cache-main/
+
+# --- Metals & BSP (Se qualcuno nel team usa VS Code o Metals) ---
+.bsp/
+.metals/
+.bloop/
+
+# --- Mac OS ---
+.DS_Store
+
+# --- Windows ---
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# --- Logs ---
+*.log
