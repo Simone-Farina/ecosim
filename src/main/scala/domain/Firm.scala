@@ -1,5 +1,6 @@
 package domain
 
+import cats.syntax.all._
 import domain.Newtypes._
 
 case class Firm(
@@ -9,5 +10,15 @@ case class Firm(
                  debt: Money,
                  tech: Double
                ) {
-  lazy val netCapital: BigDecimal = cash.value - debt.value
+  lazy val netCapital: Money = cash - debt
+
+  def produce(budget: Money): Either[String, Firm] = {
+    if (cash - budget < Money(0)) Left("Not enough cash to cover production costs")
+    else Quantity((budget.value * tech).toInt)
+      .map(q => this.copy(
+        cash = cash - budget,
+        quantity = q)
+      )
+      .leftMap(ex => ex.toReadableString)
+  }
 }
