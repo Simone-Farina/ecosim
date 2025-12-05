@@ -12,6 +12,7 @@ object Main {
       debt = Money(100),
       tech = 0.8
     )
-    f.produce(Money(f.cash.value * 0.10))
+    val f1 = f.produce(Money(f.cash.value * 0.10)).flatMap(_.investInRnD(Money(1000)))
+    f1.map(f => println(f.quantity, f.cash, f.tech))
   }
 }
