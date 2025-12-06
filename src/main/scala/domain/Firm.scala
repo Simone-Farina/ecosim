@@ -20,13 +20,24 @@ case class Firm(
     if (firm.cash < b) "Insufficient funds".invalidNel else b.validNel
 
   def produce(budget: Money): Either[String, Firm] = {
-    (validateBudget(budget), validateFunds(this, budget)).mapN {
-      case (budget, _) => this.copy(
-        cash = cash - budget,
-        quantity = Quantity.unsafe(this.quantity.value + (budget.value * tech).toInt)
-      )
-    }
-  }.toEither.leftMap(_.mkString_(" & "))
+    (validateBudget(budget), validateFunds(this, budget))
+      .tupled
+      .toEither
+      .leftMap(_.mkString_(" & "))
+      .flatMap {
+        case (validBudget, _) =>
+          val calculatedQuantity = this.quantity.value + (validBudget.value * tech)
+
+          Quantity(calculatedQuantity.intValue)
+            .leftMap(_.toReadableString)
+            .map { newQuantity =>
+              this.copy(
+                cash = cash - budget,
+                quantity = newQuantity
+              )
+            }
+      }
+  }
 
   def investInRnD(budget: Money): Either[String, Firm] = {
     validateFunds(this, budget).map {

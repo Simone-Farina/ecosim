@@ -1,6 +1,7 @@
 package domain
 
 import cats._
+import cats.data.StateT
 import cats.implicits._
 import monix.newtypes._
 
@@ -38,4 +39,7 @@ object Newtypes {
       def >=(other: Type): Boolean = self.value >= other.value
     }
   }
+
+  type Failable[A] = Either[String, A]
+  type Sim[A] = StateT[Failable, Firm, A]
 }
