@@ -6,6 +6,7 @@ lazy val root = (project in file("."))
     name := "ecosim",
     libraryDependencies ++= Seq(
       "org.typelevel" %% "cats-core" % "2.13.0",
+      "org.typelevel" %% "cats-effect" % "3.6.3",
       "org.scalameta" %% "munit" % "1.2.1" % Test
     )
   )
@@ -14,3 +15,4 @@ libraryDependencies += "io.monix" %% "newtypes-core" % "0.3.0"
 
 addCompilerPlugin("org.typelevel" %% "kind-projector" % "0.13.4" cross CrossVersion.full)
 scalacOptions += "-Ymacro-annotations"
+scalacOptions += "-Wnonunit-statement"
