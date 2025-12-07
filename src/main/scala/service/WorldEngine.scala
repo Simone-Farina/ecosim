@@ -19,7 +19,12 @@ object WorldEngine {
     }
   }
 
-  def nextStep(world: World): IO[World] =
-    world.firms.parTraverse(runOneFirm).map(newFirms => World(newFirms))
-
+  def nextStep(world: World): IO[World] = {
+    (world.firms.parTraverse(runOneFirm), world.households.parTraverse(IO(_))).tupled.map {
+      case (newFirms, sameHouseholds) => World(
+        firms = newFirms,
+        households = sameHouseholds
+      )
+    }
+  }
 }

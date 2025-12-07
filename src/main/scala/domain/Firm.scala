@@ -1,6 +1,6 @@
 package domain
 
-import cats.data.{Validated, ValidatedNel}
+import cats.data.ValidatedNel
 import cats.syntax.all._
 import domain.Newtypes._
 

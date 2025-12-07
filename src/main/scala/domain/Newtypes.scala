@@ -1,8 +1,6 @@
 package domain
 
-import cats._
 import cats.data.StateT
-import cats.implicits._
 import monix.newtypes._
 
 import java.util.UUID
@@ -11,6 +9,10 @@ object Newtypes {
   type FirmId = FirmId.Type
 
   object FirmId extends NewtypeWrapped[UUID]
+
+  type HouseholdId = HouseholdId.Type
+
+  object HouseholdId extends NewtypeWrapped[UUID]
 
   type Quantity = Quantity.Type
 
