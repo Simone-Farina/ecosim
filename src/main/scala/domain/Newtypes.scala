@@ -23,22 +23,26 @@ object Newtypes {
 
     implicit final class QuantityOps(private val self: Type) extends AnyVal {
       def +(other: Type): Either[BuildFailure[Type], Type] = Quantity.apply(self.value + other.value)
+
+      def -(other: Type): Either[BuildFailure[Type], Type] = Quantity.apply(self.value - other.value)
     }
   }
 
   type Money = Money.Type
 
   object Money extends NewtypeWrapped[BigDecimal] {
-    implicit final class MoneyOps(private val self: Type) extends AnyVal {
-      def +(other: Type): Type = Money(self.value + other.value)
+    implicit final class MoneyOps(private val self: Money) extends AnyVal {
+      def +(other: Money): Money = Money(self.value + other.value)
 
-      def -(other: Type): Type = Money(self.value - other.value)
+      def -(other: Money): Money = Money(self.value - other.value)
 
-      def <(other: Type): Boolean = self.value < other.value
+      def /(other: Money): Money = Money(self.value / other.value)
 
-      def >(other: Type): Boolean = self.value > other.value
+      def <(other: Money): Boolean = self.value < other.value
 
-      def >=(other: Type): Boolean = self.value >= other.value
+      def >(other: Money): Boolean = self.value > other.value
+
+      def >=(other: Money): Boolean = self.value >= other.value
     }
   }
 

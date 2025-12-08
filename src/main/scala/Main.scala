@@ -12,6 +12,7 @@ object Main extends IOApp.Simple {
       id = FirmId(UUID.randomUUID()),
       cash = Money(2000),
       quantity = Quantity(120).getOrElse(Quantity.unsafe(0)),
+      price = Money(10),
       debt = Money(100),
       tech = 0.8
     )).toList

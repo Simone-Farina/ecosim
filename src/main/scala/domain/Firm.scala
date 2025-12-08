@@ -8,6 +8,7 @@ case class Firm(
                  id: FirmId,
                  cash: Money,
                  quantity: Quantity,
+                 price: Money,
                  debt: Money,
                  tech: Double
                ) {
