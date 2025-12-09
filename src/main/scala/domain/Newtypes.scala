@@ -36,7 +36,7 @@ object Newtypes {
 
       def -(other: Money): Money = Money(self.value - other.value)
 
-      def /(other: Money): Money = Money(self.value / other.value)
+      def /(other: Money): BigDecimal = self.value / other.value
 
       def <(other: Money): Boolean = self.value < other.value
 
