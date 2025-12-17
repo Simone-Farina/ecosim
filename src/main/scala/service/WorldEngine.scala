@@ -34,10 +34,9 @@ object WorldEngine {
             firmRef
               .modify { firm =>
                 {
-                  val wages: Money = Money(firm.wage.value * firm.employees)
-                  if (wages < firm.cash) {
-                    (firm.copy(cash = firm.cash - wages), firm.wage)
-                  } else (firm, firm.wage)
+                  if (firm.cash >= firm.wage) {
+                    (firm.copy(cash = firm.cash - firm.wage), firm.wage)
+                  } else (firm, Money(0))
                 }
               }
               .map { wage =>
