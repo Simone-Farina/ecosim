@@ -1,6 +1,7 @@
 package domain
 
 import cats.data.StateT
+import cats.effect.IO
 import monix.newtypes._
 
 import java.util.UUID
@@ -48,4 +49,11 @@ object Newtypes {
 
   type Failable[A] = Either[String, A]
   type Sim[A] = StateT[Failable, Firm, A]
+  type BudgetOp[A] = StateT[IO, Money, A]
+
+  object BudgetOp {
+    def apply[A](f: Money => IO[(Money, A)]): BudgetOp[A] = StateT(f)
+
+    def unit: BudgetOp[Unit] = StateT.pure(())
+  }
 }

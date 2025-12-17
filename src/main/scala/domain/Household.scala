@@ -8,6 +8,7 @@ case class Household(
     cash: Money,
     income: Money,
     mpc: Double,
+    employer: Option[FirmId]
 ) {
   def planBudget: Money = {
     val desiredSpending = Money(income.value * mpc)
