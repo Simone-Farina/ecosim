@@ -40,13 +40,21 @@ object WorldEngine {
                   } else (firm, firm.wage)
                 }
               }
-              .map { wage => household.copy(cash = household.cash + wage) }
+              .map { wage =>
+                household.copy(
+                  cash = household.cash + wage,
+                  income = wage
+                )
+              }
           }
         }
-        .getOrElse(household.pure[IO])
+        .getOrElse(household.copy(income = Money(0)).pure[IO])
     }
 
-  private def shop(h: Household, firms: List[Ref[IO, Firm]]): IO[Household] = {
+  private def shop(
+      h: Household,
+      firms: Map[FirmId, Ref[IO, Firm]]
+  ): IO[Household] = {
     def visitFirm(firmRef: Ref[IO, Firm]): BudgetOp[Unit] = BudgetOp {
       currentBudget =>
         if (currentBudget.value <= 0) IO.pure((currentBudget, ()))
@@ -78,7 +86,7 @@ object WorldEngine {
     }
 
     for {
-      shuffledFirms <- Random.apply[IO].shuffleList(firms)
+      shuffledFirms <- Random.apply[IO].shuffleList(firms.toList.map(_._2))
       initialBudget = h.planBudget
       shoppingProgram = shuffledFirms.traverse_(visitFirm)
       finalBudget <- shoppingProgram.runS(initialBudget)
@@ -89,15 +97,15 @@ object WorldEngine {
   def nextStep(world: World): IO[World] =
     for {
       runFirms <- world.firms.parTraverse(runOneFirm)
-      firmsLookup <- runFirms
-        .foldLeft(Map.empty[FirmId, Ref[IO, Firm]]) { case (acc, curr) =>
-          acc ++ Map(curr.id -> Ref.unsafe[IO, Firm](curr))
-        }
-        .pure[IO]
-      firmRefs <- runFirms.traverse(f => Ref.of[IO, Firm](f))
+      firmRefs <- runFirms.traverse(Ref.of[IO, Firm])
+      firmsLookup <- firmRefs
+        .traverse(ref => ref.get.map(firm => (firm.id, ref)))
+        .map(_.toMap)
       paidHouseholds <- payWages(world.households, firmsLookup)
       world <- IO(world.copy(households = paidHouseholds))
-      updatedHouseholds <- world.households.parTraverse(h => shop(h, firmRefs))
-      finalFirms <- firmRefs.traverse(_.get)
+      updatedHouseholds <- world.households.parTraverse(h =>
+        shop(h, firmsLookup)
+      )
+      finalFirms <- firmsLookup.values.toList.traverse(_.get)
     } yield World(finalFirms, updatedHouseholds)
 }
