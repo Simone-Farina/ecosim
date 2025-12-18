@@ -93,8 +93,9 @@ object WorldEngine {
     } yield h.copy(cash = h.cash - spent)
   }
 
-  def nextStep(world: World): IO[World] =
+  def simulationLoop(worldRef: Ref[IO, World]): IO[World] =
     for {
+      world <- worldRef.get
       runFirms <- world.firms.parTraverse(runOneFirm)
       firmRefs <- runFirms.traverse(Ref.of[IO, Firm])
       firmsLookup <- firmRefs
