@@ -1,12 +1,12 @@
-package service
+package domain.services
 
 import cats.effect.std.Random
 import cats.effect.{IO, Ref}
 import cats.implicits._
-import domain.Newtypes.{BudgetOp, FirmId, Money, Quantity, Sim}
 import domain.Newtypes.Money._
+import domain.Newtypes._
 import domain.SimulationOps.{investS, produceS}
-import domain.{Firm, Household, World}
+import domain.models.{Firm, Household, World}
 
 object WorldEngine {
   private val strategy: Sim[Unit] = for {

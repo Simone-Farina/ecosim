@@ -1,11 +1,14 @@
-package domain
+package domain.models
 
 import cats.data.ValidatedNel
 import cats.syntax.all._
-import domain.Firm.FirmOp
 import domain.Newtypes._
+import domain.models.Firm.FirmOp
+import io.circe.Codec
+import io.circe.generic.semiauto._
+import sttp.tapir.Schema
 
-case class Firm(
+final case class Firm(
     id: FirmId,
     cash: Money,
     quantity: Quantity,

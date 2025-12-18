@@ -1,9 +1,9 @@
-package domain
+package domain.models
 
-import domain.Newtypes._
 import domain.Newtypes.Money._
+import domain.Newtypes._
 
-case class Household(
+final case class Household(
     id: HouseholdId,
     cash: Money,
     income: Money,
@@ -12,7 +12,7 @@ case class Household(
 ) {
   def planBudget: Money = {
     val desiredSpending = Money(income.value * mpc)
-    val maxAffordable   = cash + income
+    val maxAffordable = cash + income
 
     if (desiredSpending > maxAffordable) maxAffordable else desiredSpending
   }

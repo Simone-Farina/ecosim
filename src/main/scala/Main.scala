@@ -1,7 +1,7 @@
 import cats.effect.{IO, IOApp}
 import domain.Newtypes.{FirmId, HouseholdId, Money, Quantity}
-import domain.{Firm, Household, World}
-import service.WorldEngine
+import domain.models.{Firm, Household, World}
+import domain.services.WorldEngine
 
 import java.util.UUID
 

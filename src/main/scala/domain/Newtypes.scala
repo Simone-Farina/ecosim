@@ -2,6 +2,7 @@ package domain
 
 import cats.data.StateT
 import cats.effect.IO
+import domain.models.Firm
 import monix.newtypes._
 
 import java.util.UUID
