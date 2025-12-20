@@ -17,4 +17,19 @@ object SimulationEndpoints {
     .in("world" / "status")
     .out(jsonBody[World])
     .description("Current state of the simulation")
+
+  val pauseEndpoint = baseEndpoint.post
+    .in("simulation" / "pause")
+    .out(stringBody)
+    .description("Pause the simulation")
+
+  val resumeEndpoint = baseEndpoint.post
+    .in("simulation" / "resume")
+    .out(stringBody)
+    .description("Resume the simulation")
+
+  val resetEndpoint = baseEndpoint.post
+    .in("simulation" / "reset")
+    .out(stringBody)
+    .description("Reset current world to initial state")
 }

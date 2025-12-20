@@ -10,13 +10,13 @@ object WorldGenerator {
     val firms = (1 to numFirms).toList.map { i =>
       Firm(
         id = FirmId(UUID.randomUUID()),
-        cash = Money(15000),
-        quantity = Quantity.unsafe(10),
-        price = Money(10),
+        cash = Money(50000),
+        quantity = Quantity.unsafe(50),
+        price = Money(20),
         debt = Money(0),
-        tech = 1.0,
+        tech = 50.0,
         employees = 2,
-        wage = Money(1200)
+        wage = Money(1000)
       )
     }
 

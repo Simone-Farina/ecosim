@@ -109,17 +109,28 @@ object WorldEngine {
 
   def simulationLoop(
       worldRef: Ref[IO, World],
+      pausedRef: Ref[IO, Boolean],
       onStep: (Int, World) => IO[Unit]
   ): IO[Unit] = {
     def loop(step: Int): IO[Unit] =
       for {
-        currentWorld <- worldRef.get
-        newWorld <- executeStep(currentWorld)
-        _ <- worldRef.set(newWorld)
-        _ <- onStep(step, newWorld)
-        _ <- IO.sleep(1.second)
-        _ <- loop(step + 1)
+        isPaused <- pausedRef.get
+
+        _ <-
+          if (isPaused) {
+            IO.sleep(500.millis) >> loop(step)
+          } else {
+            for {
+              currentWorld <- worldRef.get
+              newWorld <- executeStep(currentWorld)
+              _ <- worldRef.set(newWorld)
+              _ <- onStep(step, newWorld)
+              _ <- IO.sleep(1.second)
+              _ <- loop(step + 1)
+            } yield ()
+          }
       } yield ()
+
     loop(1)
   }
 }

@@ -1,12 +1,10 @@
 import cats.effect._
 import cats.implicits._
+import domain.SimulationState
 import domain.models.World
 import domain.services.{WorldEngine, WorldGenerator}
 import infrastructure.Server
-import infrastructure.persistence.{
-  DatabaseConfig,
-  PostgresSnapshotRepository
-}
+import infrastructure.persistence.{DatabaseConfig, PostgresSnapshotRepository}
 
 object Main extends IOApp {
 
@@ -19,7 +17,7 @@ object Main extends IOApp {
 
         repository = new PostgresSnapshotRepository(xa)
         initialWorld = WorldGenerator.generate(5, 10)
-        worldRef <- Ref.of[IO, World](initialWorld)
+        state <- SimulationState.make(initialWorld)
 
         persistHook = (step: Int, world: World) =>
           for {
@@ -28,8 +26,12 @@ object Main extends IOApp {
           } yield ()
 
         _ <- (
-          Server.run(worldRef),
-          WorldEngine.simulationLoop(worldRef, persistHook)
+          Server.run(state),
+          WorldEngine.simulationLoop(
+            state.worldRef,
+            state.pausedRef,
+            persistHook
+          )
         ).parTupled
 
       } yield ExitCode.Success
