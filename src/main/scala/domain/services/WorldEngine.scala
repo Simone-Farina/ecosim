@@ -8,6 +8,8 @@ import domain.Newtypes._
 import domain.SimulationOps.{investS, produceS}
 import domain.models.{Firm, Household, World}
 
+import scala.concurrent.duration.DurationInt
+
 object WorldEngine {
   private val strategy: Sim[Unit] = for {
     _ <- produceS(Money(100))
@@ -93,19 +95,31 @@ object WorldEngine {
     } yield h.copy(cash = h.cash - spent)
   }
 
-  def simulationLoop(worldRef: Ref[IO, World]): IO[World] =
+  private def executeStep(currentWorld: World): IO[World] =
     for {
-      world <- worldRef.get
-      runFirms <- world.firms.parTraverse(runOneFirm)
+      runFirms <- currentWorld.firms.parTraverse(runOneFirm)
       firmRefs <- runFirms.traverse(Ref.of[IO, Firm])
       firmsLookup <- firmRefs
         .traverse(ref => ref.get.map(firm => (firm.id, ref)))
         .map(_.toMap)
-      paidHouseholds <- payWages(world.households, firmsLookup)
-      world <- IO(world.copy(households = paidHouseholds))
-      updatedHouseholds <- world.households.parTraverse(h =>
-        shop(h, firmsLookup)
-      )
+      paidHouseholds <- payWages(currentWorld.households, firmsLookup)
+      updatedHouseholds <- paidHouseholds.parTraverse(h => shop(h, firmsLookup))
       finalFirms <- firmsLookup.values.toList.traverse(_.get)
     } yield World(finalFirms, updatedHouseholds)
+
+  def simulationLoop(
+      worldRef: Ref[IO, World],
+      onStep: (Int, World) => IO[Unit]
+  ): IO[Unit] = {
+    def loop(step: Int): IO[Unit] =
+      for {
+        currentWorld <- worldRef.get
+        newWorld <- executeStep(currentWorld)
+        _ <- worldRef.set(newWorld)
+        _ <- onStep(step, newWorld)
+        _ <- IO.sleep(1.second)
+        _ <- loop(step + 1)
+      } yield ()
+    loop(1)
+  }
 }

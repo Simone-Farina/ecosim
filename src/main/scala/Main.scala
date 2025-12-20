@@ -1,19 +1,38 @@
-import cats.effect.kernel.Ref
-import cats.effect.{IO, IOApp}
+import cats.effect._
+import cats.implicits._
 import domain.models.World
-import domain.services.WorldGenerator
+import domain.services.{WorldEngine, WorldGenerator}
+import infrastructure.Server
+import infrastructure.persistence.{
+  DatabaseConfig,
+  PostgresSnapshotRepository
+}
 
-object Main extends IOApp.Simple {
+object Main extends IOApp {
 
-  override def run: IO[Unit] = {
-    val initialWorld = WorldGenerator.generate(5, 10)
+  override def run(args: List[String]): IO[ExitCode] = {
+    DatabaseConfig.makeTransactor.use { xa =>
+      for {
+        _ <- IO.println("🚀 Database Initialization..")
+        _ <- DatabaseConfig.initializeDb(xa)
+        _ <- IO.println("✅ Database ready.")
 
-    for {
-      worldRef <- Ref.of[IO, World](initialWorld)
-      _ <- (
-        infrastructure.Server.run(worldRef),
-        domain.services.WorldEngine.simulationLoop(worldRef)
-      ).parTupled.void
-    } yield ()
-  }.void
+        repository = new PostgresSnapshotRepository(xa)
+        initialWorld = WorldGenerator.generate(5, 10)
+        worldRef <- Ref.of[IO, World](initialWorld)
+
+        persistHook = (step: Int, world: World) =>
+          for {
+            _ <- IO.println(s"💾 Persisting step $step...")
+            _ <- repository.saveFirms(step, world.firms)
+          } yield ()
+
+        _ <- (
+          Server.run(worldRef),
+          WorldEngine.simulationLoop(worldRef, persistHook)
+        ).parTupled
+
+      } yield ExitCode.Success
+    }
+  }
 }
