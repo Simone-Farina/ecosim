@@ -2,6 +2,7 @@ package domain.services
 
 import domain.Newtypes.{FirmId, HouseholdId, Money, Quantity}
 import domain.models.{Firm, Household, World}
+import domain.strategies.StrategyType.Balanced
 
 import java.util.UUID
 
@@ -16,7 +17,8 @@ object WorldGenerator {
         debt = Money(0),
         tech = 50.0,
         employees = 2,
-        wage = Money(1000)
+        wage = Money(1000),
+        strategy = Balanced
       )
     }
 

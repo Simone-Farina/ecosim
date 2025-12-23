@@ -24,9 +24,14 @@ object Newtypes {
       else Right(unsafeCoerce(value))
 
     implicit final class QuantityOps(private val self: Type) extends AnyVal {
-      def +(other: Type): Either[BuildFailure[Type], Type] = Quantity.apply(self.value + other.value)
+      def +(other: Type): Either[BuildFailure[Type], Type] =
+        Quantity.apply(self.value + other.value)
 
-      def -(other: Type): Either[BuildFailure[Type], Type] = Quantity.apply(self.value - other.value)
+      def -(other: Type): Either[BuildFailure[Type], Type] =
+        Quantity.apply(self.value - other.value)
+
+      def >(other: Type): Boolean = self.value > other.value
+      def <(other: Type): Boolean = self.value < other.value
     }
   }
 

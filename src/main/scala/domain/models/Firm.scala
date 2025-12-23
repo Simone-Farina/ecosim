@@ -4,6 +4,7 @@ import cats.data.ValidatedNel
 import cats.syntax.all._
 import domain.Newtypes._
 import domain.models.Firm.FirmOp
+import domain.strategies.StrategyType
 import io.circe.Codec
 import io.circe.generic.semiauto._
 import sttp.tapir.Schema
@@ -16,7 +17,8 @@ final case class Firm(
     debt: Money,
     tech: Double,
     employees: Int,
-    wage: Money
+    wage: Money,
+    strategy: StrategyType
 ) {
   lazy val netCapital: Money = cash - debt
 
